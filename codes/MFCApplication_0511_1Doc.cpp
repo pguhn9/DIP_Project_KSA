@@ -23,6 +23,9 @@
 #include "CStressTransformDlg.h"
 
 
+#include "CImgComposition.h"
+
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -160,8 +163,6 @@ BOOL CMFCApplication05111Doc::OnOpenDocument(LPCTSTR lpszPathName)
 	File.Open(lpszPathName, CFile::modeRead | CFile::typeBinary);
 	// 파일 열기 대화상자에서 선택한 파일을 지정하고 읽기 모드 선택
 
-	// 이 책에서는 영상의 크기 256*256, 512*512, 640*480만을 사용한다.
-
 	if (File.GetLength() == 256 * 256) {
 		m_height = 256;
 		m_width = 256;
@@ -185,8 +186,12 @@ BOOL CMFCApplication05111Doc::OnOpenDocument(LPCTSTR lpszPathName)
 	
 	for (int i = 0; i < m_size; i++)
 		m_InputImage[i] = 255; //초기화
-	File.Read(m_InputImage, m_size); //입력 영상 파일 읽기
-	File.Close(); //파일 닫기
+	File.Read(m_InputImage, m_size);
+	File.Close();
+
+
+
+	// TODO:  여기에 특수화된 작성 코드를 추가합니다.
 
 	return TRUE;
 }
@@ -194,20 +199,20 @@ BOOL CMFCApplication05111Doc::OnOpenDocument(LPCTSTR lpszPathName)
 
 BOOL CMFCApplication05111Doc::OnSaveDocument(LPCTSTR lpszPathName)
 {
-	CFile File; // 파일 객체 선언
+	CFile File; // 
 	CFileDialog SaveDlg(FALSE, _T("raw"), NULL, OFN_HIDEREADONLY);
-	// raw 파일을 다른 이름으로 저장하기를 위한 대화상자 객체 선언
-
 
 	if (SaveDlg.DoModal() == IDOK) {
-		// DoModal 멤버 함수에서 저장하기 수행
 		File.Open(SaveDlg.GetPathName(), CFile::modeCreate | CFile::modeWrite);
-		// 파일 열기
-		File.Write(m_OutputImage, m_size); // 파일 쓰기 (아웃풋이미지 저장)
-		File.Close();// 파일 닫기
-
+		File.Write(m_OutputImage, m_size);
+		File.Close();
 	}
+
+
+
+
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
+
 	return TRUE;//CDocument::OnSaveDocument(lpszPathName);
 }
 
@@ -2203,7 +2208,7 @@ void CMFCApplication05111Doc::OnMinFilter()
 }
 
 
-void CMFCApplication05111Doc::OnBubleSort(double * A, int MAX)
+void CMFCApplication05111Doc::OnBubbleSort(double * A, int MAX)
 {
 	// TODO: 여기에 구현 코드 추가.
 	int i, j;
@@ -2231,336 +2236,400 @@ void CMFCApplication05111Doc::OnSwap(double* a, double* b)
 void CMFCApplication05111Doc::OnFft2d()
 {
 	// TODO: 여기에 구현 코드 추가.
+	int i, j, row, col, Log2N, Num;
+	Complex *Data;
+
+	unsigned char **temp;
+	double Value, Absol;
+
+	Num = m_width;
+	Log2N = 0;
+
+	m_Re_height = m_height;
+	m_Re_width = m_width;
+	m_Re_size = m_Re_height * m_Re_width;
+
+	m_OutputImage = new unsigned char[m_Re_size];
+
+	while (Num >= 2) // 영상의 너비 계산
+	{
+		Num >>= 1;
+		Log2N++;
+	}
+
+	m_tempImage = Image2DMem(m_height, m_width); // 기억 장소 할당
+	Data = new Complex[m_width];
+
+	m_FFT = new Complex *[m_height];
+	// 주파수 영역 변환 영상을 저장하기 위한 배열
+	temp = new unsigned char *[m_height];
+
+	for (i = 0; i < m_height; i++) {
+		m_FFT[i] = new Complex[m_width];
+		temp[i] = new unsigned char[m_width];
+	}
+	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) {
+			Data[j].Re = (double)m_InputImage[i*m_width + j];
+			// 입력의 한 행을 복사, 실수 성분 값은 영상의 값
+			Data[j].Im = 0.0; // 복소 성분 값은 0
+		}
+		OnFtt1d(Data, m_width, Log2N); // 1차원 FFT
+		for (j = 0; j < m_width; j++) { // 결과 저장
+			m_FFT[i][j].Re = Data[j].Re;
+			m_FFT[i][j].Im = Data[j].Im;
+		}
+	}
+
+	Num = m_height;
+	Log2N = 0;
+
+	while (Num >= 2) // 영상의 높이 계산
+	{
+		Num >>= 1;
+		Log2N++;
+	}
+
+	Data = new Complex[m_height];
+
+	for (i = 0; i < m_width; i++) {
+		for (j = 0; j < m_height; j++) {
+			Data[j].Re = m_FFT[j][i].Re; // 영상의 한 열을 복사
+			Data[j].Im = m_FFT[j][i].Im;
+		}
+
+		OnFtt1d(Data, m_height, Log2N); // 1차원 FFT
+
+		for (j = 0; j < m_height; j++) { // 결과 저장
+			m_FFT[j][i].Re = Data[j].Re;
+			m_FFT[j][i].Im = Data[j].Im;
+		}
+	}
+	// FFT 실행 결과를 영상으로 출력하기 위한 연산
+	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) {
+			Value = sqrt((m_FFT[i][j].Re * m_FFT[i][j].Re) +
+				(m_FFT[i][j].Im * m_FFT[i][j].Im));
+			Absol = 20 * log(Value);
+
+			if (Absol > 255.0)
+				Absol = 255.0;
+			if (Absol < 0.0)
+				Absol = 0.0;
+			m_tempImage[i][j] = Absol;
+		}
+	}
+
+	// 셔플링 과정 : 영상을 4등분하고 분할된 영상을 상하 대칭 및 좌우 대칭
+	for (i = 0; i < m_height; i += m_height / 2) {
+		for (int j = 0; j < m_width; j += m_width / 2) {
+			for (row = 0; row < m_height / 2; row++) {
+				for (col = 0; col < m_width / 2; col++) {
+					temp[(m_height / 2 - 1) - row + i][(m_width / 2 - 1) - col + j]
+						= (unsigned char)m_tempImage[i + row][j + col];
+				}
+			}
+		}
+	}
+	
+	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) {
+			m_OutputImage[i*m_width + j] = temp[i][j];
+		}
+	}
+
+	delete[] Data, **temp;
+
 }
 
 
 void CMFCApplication05111Doc::OnFtt1d(Complex * X, int N, int Log2N)
 {
 	// TODO: 여기에 구현 코드 추가.
+	// 1차원 fft를 위한 함수
+	OnShuffle(X, N, Log2N); // 함수 호출
+	OnButterfly(X, N, Log2N, 1); // 함수 호출
 }
 
 
 void CMFCApplication05111Doc::OnShuffle(Complex * X, int N, int Log2N)
 {
 	// TODO: 여기에 구현 코드 추가.
+	// 입력 데이터의 순서를 바구기 위한 함수
+	int i;
+	Complex *temp;
+
+	temp = new Complex[N];
+
+	for (i = 0; i < N; i++) {
+		temp[i].Re = X[OnReverseBitOrder(i, Log2N)].Re;
+		temp[i].Im = X[OnReverseBitOrder(i, Log2N)].Im;
+	}
+
+	for (i = 0; i < N; i++) {
+		X[i].Re = temp[i].Re;
+		X[i].Im = temp[i].Im;
+	}
+	delete[] temp;
 }
 
 
 void CMFCApplication05111Doc::OnButterfly(Complex * X, int N, int Log2N, int mode)
 {
 	// TODO: 여기에 구현 코드 추가.
+	 // 나비(Butterfly) 구조를 위한 함수
+	int i, j, k, m;
+
+	int start;
+	double Value;
+	double PI = 3.14159265358979;
+
+	Complex *Y, temp;
+
+	Y = new Complex[N / 2];
+
+	for (i = 0; i < Log2N; i++) {
+		Value = pow(2, i + 1);
+
+		if (mode == 1) {
+			for (j = 0; j < (int)(Value / 2); j++) {
+				Y[j].Re = cos(j*2.0*PI / Value);
+				Y[j].Im = -sin(j*2.0*PI / Value);
+			}
+		}
+		if (mode == 2) {
+			for (j = 0; j < (int)(Value / 2); j++) {
+				Y[j].Re = cos(j*2.0*PI / Value);
+				Y[j].Im = sin(j*2.0*PI / Value);
+			}
+		}
+
+		start = 0;
+
+		for (k = 0; k < N / (int)Value; k++) {
+			for (j = start; j < start + (int)(Value / 2); j++) {
+				m = j + (int)(Value / 2);
+				temp.Re = Y[j - start].Re * X[m].Re
+					- Y[j - start].Im * X[m].Im;
+				temp.Im = Y[j - start].Im * X[m].Re
+					+ Y[j - start].Re * X[m].Im;
+
+				X[m].Re = X[j].Re - temp.Re;
+				X[m].Im = X[j].Im - temp.Im;
+
+				X[j].Re = X[j].Re + temp.Re;
+				X[j].Im = X[j].Im + temp.Im;
+			}
+			start = start + (int)Value;
+		}
+	}
+	if (mode == 2) {
+		for (i = 0; i < N; i++) {
+			X[i].Re = X[i].Re / N;
+			X[i].Im = X[i].Im / N;
+		}
+	}
+
+	delete[] Y;
 }
 
 
 int CMFCApplication05111Doc::OnReverseBitOrder(int index, int Log2N)
 {
 	// TODO: 여기에 구현 코드 추가.
-	return 0;
+	int i, X, Y;
+
+	Y = 0;
+
+	for (i = 0; i < Log2N; i++) {
+		X = (index & (1 << i)) >> i;
+		Y = (Y << 1) | X;
+	}
+
+	return Y;
 }
 
 
-void CMFCApplication05111Doc::OnDiffOperatorHor()
+void CMFCApplication05111Doc::OnImgCompo()
 {
-	// TODO: 여기에 구현 코드 추가.
-	int i, j;
-	double DiffHorMask[3][3]
-		= { {0., -1., 0.}, {0., 1., 0.}, {0., 0., 0.} };
-	// 수평 필터 선택
+	// 프레임AND 참고
+	CFile File;
+	CFileDialog OpenDlg(TRUE);
+	CImgComposition ic;
+
+	int i;
+	unsigned char *background = nullptr;
 
 	m_Re_height = m_height;
 	m_Re_width = m_width;
 	m_Re_size = m_Re_height * m_Re_width;
+
 	m_OutputImage = new unsigned char[m_Re_size];
 
-	m_tempImage = OnMaskProcess(m_InputImage, DiffHorMask);
-	// m_tempImage = OnScale(m_tempImage, m_Re_height, m_Re_width);
+	if (OpenDlg.DoModal() == IDOK) {
+		File.Open(OpenDlg.GetPathName(), CFile::modeRead); //파일 열기창
+		if (File.GetLength() == (unsigned)m_width * m_height) {
+			background = new unsigned char[m_size];
+			File.Read(background, m_size); //파일에서 데이터 가지고 오기.
+			File.Close();
 
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			if (m_tempImage[i][j] > 255.)
-				m_tempImage[i][j] = 255.;
-			if (m_tempImage[i][j] < 0.)
-				m_tempImage[i][j] = 0.;
+
+			m_OutputImage=ic.ImageComposition(m_size, m_InputImage, background, m_OutputImage);
+
+			//for (i = 0; i < m_size; i++) {
+			//	m_OutputImage[i]
+			//		= (unsigned char)(m_InputImage[i] & background[i]);
+			//}
+		}
+		else {
+			AfxMessageBox(L"Image size not matched");
+			return;
 		}
 	}
-
-
 }
 
 
-void CMFCApplication05111Doc::OnHomogenOperator()
+void CMFCApplication05111Doc::OnIfft2d()
 {
 	// TODO: 여기에 구현 코드 추가.
-	int i, j, n, m;
-	double max, **tempOutputImage;
+	int i, j, Num, Log2N;
+	Complex *Data;
+
+	Num = m_width;
+	Log2N = 0;
 
 	m_Re_height = m_height;
 	m_Re_width = m_width;
 	m_Re_size = m_Re_height * m_Re_width;
+
 	m_OutputImage = new unsigned char[m_Re_size];
 
-	m_tempImage = Image2DMem(m_height + 2, m_width + 2);
-	tempOutputImage = Image2DMem(m_Re_height, m_Re_width);
+	while (Num >= 2) // 주파수 변환된 영상의 너비 계산
+	{
+		Num >>= 1;
+		Log2N++;
+	}
+
+	Data = new Complex[m_height];
+	m_IFFT = new Complex *[m_height]; // 역변환된 영상을 위한 배열
 
 	for (i = 0; i < m_height; i++) {
-		for (j = 0; j < m_width; j++) {
-			m_tempImage[i + 1][j + 1] = (double)m_InputImage[i * m_width + j];
-		}
+		m_IFFT[i] = new Complex[m_width];
 	}
-
 	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) { // 한 행을 복사
+			Data[j].Re = m_FFT[i][j].Re;
+			Data[j].Im = m_FFT[i][j].Im;
+		}
+
+		OnIfft1d(Data, m_width, Log2N); // 1차원 IFFT
 		for (j = 0; j < m_width; j++) {
-			max = 0.0; // 블록이 이동할 때마다 최대값 초기화
-			for (n = 0; n < 3; n++) {
-				for (m = 0; m < 3; m++) {
-					if (DoubleABS(m_tempImage[i + 1][j + 1] -
-						m_tempImage[i + n][j + m]) >= max)
-						// 블록의 가운데 값 - 블록의 주변 픽셀 값의 절대 값
-						// 중에서 최대값을 찾는다.
-
-						max = DoubleABS(m_tempImage[i + 1]
-							[j + 1] - m_tempImage[i + n][j + m]);
-				}
-			}
-			tempOutputImage[i][j] = max; // 찾은 최대값을 출력 값으로 지정
+			m_IFFT[i][j].Re = Data[j].Re; // 결과 저장
+			m_IFFT[i][j].Im = Data[j].Im;
 		}
 	}
 
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			if (tempOutputImage[i][j] > 255.)
-				tempOutputImage[i][j] = 255.;
-			if (tempOutputImage[i][j] < 0.)
-				tempOutputImage[i][j] = 0.;
+	Num = m_height;
+	Log2N = 0;
+	while (Num >= 2) // 주파수 변환된 영상의 높이 계산
+	{
+		Num >>= 1;
+		Log2N++;
+	}
+
+	Data = new Complex[m_height];
+
+	for (i = 0; i < m_width; i++) {
+		for (j = 0; j < m_height; j++) {
+			Data[j].Re = m_IFFT[j][i].Re; // 한 열을 복사
+			Data[j].Im = m_IFFT[j][i].Im;
+		}
+
+		OnIfft1d(Data, m_height, Log2N); // 1차원 IFFT
+
+		for (j = 0; j < m_height; j++) {
+			m_IFFT[j][i].Re = Data[j].Re; // 결과 저장
+			m_IFFT[j][i].Im = Data[j].Im;
 		}
 	}
 
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			m_OutputImage[i* m_Re_width + j]
-				= (unsigned char)tempOutputImage[i][j];
+	for (i = 0; i < m_width; i++) {
+		for (j = 0; j < m_height; j++) {
+			m_OutputImage[i*m_width + j]
+				= (unsigned char)m_IFFT[i][j].Re;
+			// 결과 출력
 		}
 	}
-
-
+	delete[] Data;
 }
 
 
-double CMFCApplication05111Doc::DoubleABS(double X)
-{
-	// 실수의 절대 값 연산 함수
-	if (X >= 0)
-		return X;
-	else
-		return -X;
-
-}
-
-
-void CMFCApplication05111Doc::OnLaplacian()
-{
-	// TODO: 여기에 구현 코드 추가.
-	int i, j;
-	double LaplacianMask[3][3] = { {0., 1., 0.}, {1., -4., 1.}, {0., 1., 0.} };
-
-	m_Re_height = m_height;
-	m_Re_width = m_width;
-	m_Re_size = m_Re_height * m_Re_width;
-	m_OutputImage = new unsigned char[m_Re_size];
-
-	m_tempImage = OnMaskProcess(m_InputImage, LaplacianMask);
-
-	// m_tempImage = OnScale(m_tempImage, m_Re_height, m_Re_width);
-
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			if (m_tempImage[i][j] > 255.)
-				m_tempImage[i][j] = 255.;
-			if (m_tempImage[i][j] < 0.)
-				m_tempImage[i][j] = 0.;
-		}
-	}
-
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			m_OutputImage[i* m_Re_width + j]
-				= (unsigned char)m_tempImage[i][j];
-		}
-	}
-
-}
-
-
-void CMFCApplication05111Doc::OnNearest()
+void CMFCApplication05111Doc::OnIfft1d(Complex* X, int N, int Log2N)
 {
 	// TODO: 여기에 구현 코드 추가.
-	int i, j;
-	int ZoomRate = 2; // 영상 확대 배율
-	double **tempArray;
-
-	m_Re_height = int(ZoomRate*m_height); // 확대된 영상의 높이
-	m_Re_width = int(ZoomRate*m_width); // 확대된 영상의 너비
-	m_Re_size = m_Re_height * m_Re_width;
-
-	m_tempImage = Image2DMem(m_height, m_width);
-	tempArray = Image2DMem(m_Re_height, m_Re_width);
-
-	m_OutputImage = new unsigned char[m_Re_size];
-
-	for (i = 0; i < m_height; i++) {
-		for (j = 0; j < m_width; j++) {
-			m_tempImage[i][j] = (double)m_InputImage[i*m_width + j];
-		}
-	}
-
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			tempArray[i][j] = m_tempImage[i / ZoomRate][j / ZoomRate];
-			// 이웃한 화소를 이용한 보간
-		}
-	}
-
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			m_OutputImage[i* m_Re_width + j] = (unsigned char)tempArray[i][j];
-		}
-	}
-
+	OnShuffle(X, N, Log2N);
+	OnButterfly(X, N, Log2N, 2);
 }
 
 
-void CMFCApplication05111Doc::OnBilinear()
+void CMFCApplication05111Doc::OnLpfFrequency()
 {
 	// TODO: 여기에 구현 코드 추가.
-	int i, j, point, i_H, i_W;
-	unsigned char newValue;
-	double ZoomRate = 2.0, r_H, r_W, s_H, s_W;
-	double C1, C2, C3, C4;
+	int i, j, x, y;
+	double temp, D, N;
+	D = 32.0;
+	N = 4.0;
 
-	m_Re_height = (int)(m_height * ZoomRate); // 확대된 영상의 높이
-	m_Re_width = (int)(m_width * ZoomRate); // 확대된 영상의 너비
-	m_Re_size = m_Re_height * m_Re_width;
+	OnFft2d(); // 주파수 변환
 
-	m_tempImage = Image2DMem(m_height, m_width);
-	m_OutputImage = new unsigned char[m_Re_size];
-
+	// 주파수 변환된 값에서 고주파 성분 제거
 	for (i = 0; i < m_height; i++) {
 		for (j = 0; j < m_width; j++) {
-			m_tempImage[i][j] = (double)m_InputImage[i*m_width + j];
+			x = i;
+			y = j;
+			if (x > m_height / 2)
+				x = x - m_height;
+			if (y > m_width / 2)
+				y = y - m_width;
+
+			temp = 1.0 / (1.0 + pow(sqrt((double)
+				(x * x + y * y)) / D, 2 * N));
+
+			m_FFT[i][j].Re = m_FFT[i][j].Re * temp;
+			m_FFT[i][j].Im = m_FFT[i][j].Im * temp;
 		}
 	}
 
-	for (i = 0; i < m_Re_height; i++) {
-		for (j = 0; j < m_Re_width; j++) {
-			r_H = i / ZoomRate;
-			r_W = j / ZoomRate;
-
-			i_H = (int)floor(r_H);
-			i_W = (int)floor(r_W);
-
-			s_H = r_H - i_H;
-			s_W = r_W - i_W;
-
-			if (i_H < 0 || i_H >= (m_height - 1) || i_W < 0
-				|| i_W >= (m_width - 1))
-			{
-				point = i * m_Re_width + j;
-				m_OutputImage[point] = 255;
-			}
-			else
-			{
-				C1 = (double)m_tempImage[i_H][i_W];
-				C2 = (double)m_tempImage[i_H][i_W + 1];
-				C3 = (double)m_tempImage[i_H + 1][i_W + 1];
-				C4 = (double)m_tempImage[i_H + 1][i_W];
-
-				newValue = (unsigned char)(C1*(1 - s_H)*(1 - s_W)
-					+ C2 * s_W*(1 - s_H) + C3 * s_W*s_H + C4 * (1 - s_W)*s_H);
-				point = i * m_Re_width + j;
-				m_OutputImage[point] = newValue;
-			}
-		}
-	}
+	OnIfft2d(); // 주파수 역변환
 }
 
 
-void CMFCApplication05111Doc::OnMedianSub()
+void CMFCApplication05111Doc::OnHpfFrequency()
 {
 	// TODO: 여기에 구현 코드 추가.
-	int i, j, n, m, M = 2, index = 0; // M = 서브 샘플링 비율
-	double *Mask, Value;
+	int i, j, x, y;
+	double temp, D, N;
+	D = 128.0;
+	N = 4.0;
 
-	Mask = new    double[M*M]; // 마스크의 크기 결정
-
-	m_Re_height = (m_height + 1) / M;
-	m_Re_width = (m_width + 1) / M;
-	m_Re_size = m_Re_height * m_Re_width;
-
-	m_OutputImage = new unsigned char[m_Re_size];
-	m_tempImage = Image2DMem(m_height + 1, m_width + 1);
-
+	OnFft2d(); // 주파수 변환
+	// 주파수 변환된 값에서 저주파 성분 제거
 	for (i = 0; i < m_height; i++) {
 		for (j = 0; j < m_width; j++) {
-			m_tempImage[i][j] = (double)m_InputImage[i*m_width + j];
+			x = i;
+			y = j;
+
+			if (x > m_height / 2)
+				x = x - m_height;
+			if (y > m_width / 2)
+				y = y - m_width;
+
+			temp = 1.0 / (1.0 + pow(D / sqrt((double)
+				(x * x + y * y)), 2 * N));
+
+			m_FFT[i][j].Re = m_FFT[i][j].Re * temp;
+			m_FFT[i][j].Im = m_FFT[i][j].Im * temp;
 		}
 	}
-	for (i = 0; i < m_height - 1; i = i + M) {
-		for (j = 0; j < m_width - 1; j = j + M) {
-			for (n = 0; n < M; n++) {
-				for (m = 0; m < M; m++) {
-					Mask[n*M + m] = m_tempImage[i + n][j + m];
-					// 입력 영상을 블록으로 잘라 마스크 배열에 저장
-				}
-			}
-			OnBubleSort(Mask, M*M); // 마스크에 저장된 값을 정렬
-			Value = Mask[(int)(M*M / 2)]; // 정렬된 값 중 가운데 값을 선택
-			m_OutputImage[index] = (unsigned char)Value;
-			// 가운데 값을 출력
-			index++;
-		}
-	}
-
-
-}
-
-
-void CMFCApplication05111Doc::OnMeanSub()
-{
-	// TODO: 여기에 구현 코드 추가.
-	int i, j, n, m, M = 3, index = 0, k; // M = 서브 샘플링 비율
-	double *Mask, Value, Sum = 0.0;
-
-	Mask = new    double[M*M];
-
-	m_Re_height = (m_height + 1) / M;
-	m_Re_width = (m_width + 1) / M;
-	m_Re_size = m_Re_height * m_Re_width;
-
-	m_OutputImage = new unsigned char[m_Re_size];
-	m_tempImage = Image2DMem(m_height + 1, m_width + 1);
-
-	for (i = 0; i < m_height; i++) {
-		for (j = 0; j < m_width; j++) {
-			m_tempImage[i][j] = (double)m_InputImage[i*m_width + j];
-		}
-	}
-	for (i = 0; i < m_height - 1; i = i + M) {
-		for (j = 0; j < m_width - 1; j = j + M) {
-			for (n = 0; n < M; n++) {
-				for (m = 0; m < M; m++) {
-					Mask[n*M + m] = m_tempImage[i + n][j + m];
-				}
-			}
-			for (k = 0; k < M*M; k++)
-				Sum = Sum + Mask[k];
-			// 마스크에 저장된 값을 누적
-			Value = (Sum / (M*M)); // 평균을 계산
-			m_OutputImage[index] = (unsigned char)Value;
-			// 평균값을 출력
-			index++;
-			Sum = 0.0;
-		}
-	}
-
-
+	OnIfft2d(); // 주파수 역변환
 }

@@ -118,7 +118,7 @@ public:
 	void OnMedianFilter();
 	void OnMaxFilter();
 	void OnMinFilter();
-	void OnBubleSort(double * A, int MAX);
+	void OnBubbleSort(double * A, int MAX);
 	void OnSwap(double* a, double* b);
 	struct Complex {
 		double Re;
@@ -131,12 +131,10 @@ public:
 	void OnButterfly(Complex * X, int N, int Log2N, int mode);
 	int OnReverseBitOrder(int index, int Log2N);
 	Complex** m_FFT;
-	void OnDiffOperatorHor();
-	void OnHomogenOperator();
-	double DoubleABS(double X);
-	void OnLaplacian();
-	void OnNearest();
-	void OnBilinear();
-	void OnMedianSub();
-	void OnMeanSub();
+	void OnImgCompo();
+	void OnIfft2d();
+	void OnIfft1d(Complex* X, int N, int Log2N);
+	Complex** m_IFFT;
+	void OnLpfFrequency();
+	void OnHpfFrequency();
 };
