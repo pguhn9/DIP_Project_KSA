@@ -93,13 +93,10 @@ public:
 	afx_msg void OnMaxFilter();
 	afx_msg void OnMinFilter();
 	afx_msg void OnFft2d();
-	afx_msg void OnDiffOperatorHor();
-	afx_msg void OnHomogenOperator();
-	afx_msg void OnLaplacian();
-	afx_msg void OnNearest();
-	afx_msg void OnBilinear();
-	afx_msg void OnMedianSub();
-	afx_msg void OnMeanSub();
+	afx_msg void OnImgCompo();
+	afx_msg void OnIfft2d();
+	afx_msg void OnLpfFrequency();
+	afx_msg void OnHpfFrequency();
 };
 
 #ifndef _DEBUG  // MFCApplication_0511_1View.cpp의 디버그 버전

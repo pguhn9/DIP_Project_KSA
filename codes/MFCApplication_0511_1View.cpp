@@ -78,13 +78,10 @@ ON_COMMAND(ID_MEDIAN_FILTER, &CMFCApplication05111View::OnMedianFilter)
 ON_COMMAND(ID_MAX_FILTER, &CMFCApplication05111View::OnMaxFilter)
 ON_COMMAND(ID_MIN_FILTER, &CMFCApplication05111View::OnMinFilter)
 ON_COMMAND(ID_FFT_2D, &CMFCApplication05111View::OnFft2d)
-ON_COMMAND(ID_DIFF_OPERATOR_HOR, &CMFCApplication05111View::OnDiffOperatorHor)
-ON_COMMAND(ID_HOMOGEN_OPERATOR, &CMFCApplication05111View::OnHomogenOperator)
-ON_COMMAND(ID_LAPLACIAN, &CMFCApplication05111View::OnLaplacian)
-ON_COMMAND(ID_NEAREST, &CMFCApplication05111View::OnNearest)
-ON_COMMAND(ID_BILINEAR, &CMFCApplication05111View::OnBilinear)
-ON_COMMAND(ID_MEDIAN_SUB, &CMFCApplication05111View::OnMedianSub)
-ON_COMMAND(ID_MEAN_SUB, &CMFCApplication05111View::OnMeanSub)
+ON_COMMAND(ID_IMG_COMPO, &CMFCApplication05111View::OnImgCompo)
+ON_COMMAND(ID_IFFT_2D, &CMFCApplication05111View::OnIfft2d)
+ON_COMMAND(ID_LPF_FREQUENCY, &CMFCApplication05111View::OnLpfFrequency)
+ON_COMMAND(ID_HPF_FREQUENCY, &CMFCApplication05111View::OnHpfFrequency)
 END_MESSAGE_MAP()
 
 // CMFCApplication05111View 생성/소멸
@@ -115,7 +112,7 @@ BOOL CMFCApplication05111View::PreCreateWindow(CREATESTRUCT& cs)
 // CMFCApplication05111View 그리기
 void CMFCApplication05111View::OnDraw(CDC* pDC)
 {
-	CMFCApplication05111Doc* pDoc = GetDocument();  //도큐먼트 클래스 참조
+	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	int i, j;
 	unsigned char R, G, B;
@@ -134,6 +131,10 @@ void CMFCApplication05111View::OnDraw(CDC* pDC)
 			pDC->SetPixel(j + pDoc->m_width + 10, i + 5, RGB(R, G, B));
 		}
 	}
+	
+	//if (!pDoc)
+	//	return;
+
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 }
 
@@ -746,94 +747,68 @@ void CMFCApplication05111View::OnMinFilter()
 void CMFCApplication05111View::OnFft2d()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-}
-
-
-void CMFCApplication05111View::OnDiffOperatorHor()
-{
 	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	pDoc->OnDiffOperatorHor();
+	pDoc->OnFft2d();
 
 	Invalidate(TRUE);
-
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 }
 
 
-void CMFCApplication05111View::OnHomogenOperator()
+void CMFCApplication05111View::OnImgCompo()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	CMFCApplication05111Doc* pDoc = GetDocument();
+	CMFCApplication05111Doc*pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	pDoc->OnHomogenOperator();
-
+	pDoc->OnImgCompo();
 	Invalidate(TRUE);
-
 }
-
-
-void CMFCApplication05111View::OnLaplacian()
-{
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	CMFCApplication05111Doc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	pDoc->OnLaplacian();
-
-	Invalidate(TRUE);
-
-}
-
-
+/*
 void CMFCApplication05111View::OnNearest()
 {
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
 	pDoc->OnNearest();
 
 	Invalidate(TRUE);
-
 }
+*/
 
 
-void CMFCApplication05111View::OnBilinear()
+void CMFCApplication05111View::OnIfft2d()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	pDoc->OnBilinear();
+	pDoc->OnIfft2d();
 
 	Invalidate(TRUE);
-
 }
 
 
-void CMFCApplication05111View::OnMedianSub()
+void CMFCApplication05111View::OnLpfFrequency()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	pDoc->OnMedianSub();
+	pDoc->OnLpfFrequency();
 
 	Invalidate(TRUE);
-
 }
 
 
-void CMFCApplication05111View::OnMeanSub()
+void CMFCApplication05111View::OnHpfFrequency()
 {
 	// TODO: 여기에 명령 처리기 코드를 추가합니다.
 	CMFCApplication05111Doc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 
-	pDoc->OnMeanSub();
+	pDoc->OnHpfFrequency();
 
 	Invalidate(TRUE);
 
