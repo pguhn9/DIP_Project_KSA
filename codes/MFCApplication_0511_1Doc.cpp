@@ -5270,4 +5270,135 @@ void CMFCApplication05111Doc::OnHpfFrequency()
 	}
 	OnIfft2d(); // 주파수 역변환
 }
+
+
+void CMFCApplication05111Doc::OnDiffOperatorHor()
+{
+	// TODO: 여기에 구현 코드 추가.
+	int i, j;
+	double DiffHorMask[3][3]
+		= { {0., -1., 0.}, {0., 1., 0.}, {0., 0., 0.} };
+	// 수평 필터 선택
+
+	m_Re_height = m_height;
+	m_Re_width = m_width;
+	m_Re_size = m_Re_height * m_Re_width;
+	m_OutputImage = new unsigned char[m_Re_size];
+
+	m_tempImage = OnMaskProcess(m_InputImage, DiffHorMask);
+	// m_tempImage = OnScale(m_tempImage, m_Re_height, m_Re_width);
+
+	for (i = 0; i < m_Re_height; i++) {
+		for (j = 0; j < m_Re_width; j++) {
+			if (m_tempImage[i][j] > 255.)
+				m_tempImage[i][j] = 255.;
+			if (m_tempImage[i][j] < 0.)
+				m_tempImage[i][j] = 0.;
+		}
+	}
+
+
+}
+
+void CMFCApplication05111Doc::OnHomogenOperator()
+{
+	// TODO: 여기에 구현 코드 추가.
+	int i, j, n, m;
+	double max, **tempOutputImage;
+
+	m_Re_height = m_height;
+	m_Re_width = m_width;
+	m_Re_size = m_Re_height * m_Re_width;
+	m_OutputImage = new unsigned char[m_Re_size];
+
+	m_tempImage = Image2DMem(m_height + 2, m_width + 2);
+	tempOutputImage = Image2DMem(m_Re_height, m_Re_width);
+
+	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) {
+			m_tempImage[i + 1][j + 1] = (double)m_InputImage[i * m_width + j];
+		}
+	}
+
+	for (i = 0; i < m_height; i++) {
+		for (j = 0; j < m_width; j++) {
+			max = 0.0; // 블록이 이동할 때마다 최대값 초기화
+			for (n = 0; n < 3; n++) {
+				for (m = 0; m < 3; m++) {
+					if (DoubleABS(m_tempImage[i + 1][j + 1] -
+						m_tempImage[i + n][j + m]) >= max)
+						// 블록의 가운데 값 - 블록의 주변 픽셀 값의 절대 값
+						// 중에서 최대값을 찾는다.
+
+						max = DoubleABS(m_tempImage[i + 1]
+							[j + 1] - m_tempImage[i + n][j + m]);
+				}
+			}
+			tempOutputImage[i][j] = max; // 찾은 최대값을 출력 값으로 지정
+		}
+	}
+
+	for (i = 0; i < m_Re_height; i++) {
+		for (j = 0; j < m_Re_width; j++) {
+			if (tempOutputImage[i][j] > 255.)
+				tempOutputImage[i][j] = 255.;
+			if (tempOutputImage[i][j] < 0.)
+				tempOutputImage[i][j] = 0.;
+		}
+	}
+
+	for (i = 0; i < m_Re_height; i++) {
+		for (j = 0; j < m_Re_width; j++) {
+			m_OutputImage[i* m_Re_width + j]
+				= (unsigned char)tempOutputImage[i][j];
+		}
+	}
+
+
+}
+
+double CMFCApplication05111Doc::DoubleABS(double X)
+{
+	// 실수의 절대 값 연산 함수
+	if (X >= 0)
+		return X;
+	else
+		return -X;
+
+}
+
+void CMFCApplication05111Doc::OnLaplacian()
+{
+	// TODO: 여기에 구현 코드 추가.
+	int i, j;
+	double LaplacianMask[3][3] = { {0., 1., 0.}, {1., -4., 1.}, {0., 1., 0.} };
+
+	m_Re_height = m_height;
+	m_Re_width = m_width;
+	m_Re_size = m_Re_height * m_Re_width;
+	m_OutputImage = new unsigned char[m_Re_size];
+
+	m_tempImage = OnMaskProcess(m_InputImage, LaplacianMask);
+
+	// m_tempImage = OnScale(m_tempImage, m_Re_height, m_Re_width);
+
+	for (i = 0; i < m_Re_height; i++) {
+		for (j = 0; j < m_Re_width; j++) {
+			if (m_tempImage[i][j] > 255.)
+				m_tempImage[i][j] = 255.;
+			if (m_tempImage[i][j] < 0.)
+				m_tempImage[i][j] = 0.;
+		}
+	}
+
+	for (i = 0; i < m_Re_height; i++) {
+		for (j = 0; j < m_Re_width; j++) {
+			m_OutputImage[i* m_Re_width + j]
+				= (unsigned char)m_tempImage[i][j];
+		}
+	}
+
+}
+
+
 >>>>>>> 6adb5b23adddc723618e002f44a83cc893e0192f
