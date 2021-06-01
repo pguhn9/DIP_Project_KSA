@@ -138,6 +138,10 @@ public:
 	Complex** m_IFFT;
 	void OnLpfFrequency();
 	void OnHpfFrequency();
+	void OnDiffOperatorHor();
+	void OnHomogenOperator();
+	double DoubleABS(double X);
+	void OnLaplacian();
 };
 =======
 ﻿
@@ -279,5 +283,9 @@ public:
 	Complex** m_IFFT;
 	void OnLpfFrequency();
 	void OnHpfFrequency();
+	void OnDiffOperatorHor();
+	void OnHomogenOperator();
+	double DoubleABS(double X);
+	void OnLaplacian();
 };
 >>>>>>> 6adb5b23adddc723618e002f44a83cc893e0192f
