@@ -211,7 +211,6 @@ BOOL CImageCompositionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	CFile hFile;
 
 	if (!hFile.Open(lpszPathName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
-
 		return FALSE;
 
 	//정보저장
@@ -313,4 +312,26 @@ void CImageCompositionDoc::OnImgComp()
 		}
 	}
 	*/
+}
+
+
+void CImageCompositionDoc::OnDownsample()
+{
+	// TODO: 여기에 구현 코드 추가.
+	int i, j, k;
+
+	m_Out_height = m_height / 2;
+	m_Out_width = m_width / 2;
+	m_Out_size = m_Out_height * m_Out_width;
+
+	m_OutputImage = new unsigned char[m_Out_size*3];
+
+	for (i = 0; i < m_Out_height; i++) {
+		for (j = 0; j < m_Out_width; j++) {
+			for (k = 0; k < 3; k++) {
+				m_OutputImage[i*m_Out_width + (j*3)+k] = m_InImg[(i * 2 * m_width) + 2 * (j*3)+k];
+			}
+		}
+	}
+
 }
