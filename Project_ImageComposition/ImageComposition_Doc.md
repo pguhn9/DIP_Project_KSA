@@ -71,6 +71,9 @@
 * 레나 그랩컷 첫번째
 <br/>
 <img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/grabcut1.PNG" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
+* 레나 그랩컷 두번째
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/grabcut2.PNG" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
 * 레나 그랩컷 마스크 이미지
 <br/>
 <img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/grabcut2_0255.PNG" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
