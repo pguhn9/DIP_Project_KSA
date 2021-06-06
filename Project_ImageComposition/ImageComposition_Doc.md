@@ -10,12 +10,10 @@
 
 ## 2. 구조 설계
 ### 1) 프로젝트 구조 개요
-<<<<<<< HEAD
-=======
-<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Project_structure_info.PNG" width="550px" height="700px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
->>>>>>> 8455ed25a8e8698a43e91e9de9db4b205c068322
+
 
 <img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Project_structure_info.PNG" width="550px" height="700px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
 
 ### 2) 다이어그램
 #### (1) Sequence Diagram
@@ -61,7 +59,30 @@
   - ImgFrameSum 함수 : 두 이미지를 SUM연산한 결과를 반환하는 함수.
   - ImgBinary 함수 : 한 이미지를 이진화 하는 함수.
 
-### 5) 자동 마스크 생성
+### 5) grabcut 마스크 생성 코드
+* 프로그램 : python
+* 소스코드 : grabcutlena.py
+* 사용 알고리즘 : opencv(Grapcut 알고리즘)
+: 인물 이미지의 수동으로 이미지 외각선을 검정선으로 이미지 내부를 흰선으로 표시하고 마스킹 소리
+</br>
+* 레나 라인 이미지
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lena_mask_line.jpg" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
+* 레나 그랩컷 첫번째
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/grabcut1.PNG" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
+* 레나 그랩컷 마스크 이미지
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/grabcut2_0255.PNG" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lena_mask_result.bmp" width="256px" height="256px" title="lena_mask_line" alt="lena_mask_line"></img><br/>
+
+* 개선할 점
+    * 이미지 오브젝트 중간에 있는 노이즈 제거 필요
+    * 수동으로 이미지의 테두리와 오브젝트를 선을 그어야해서 자동으로 마스킹을 딸 수 있는 딥러닝 기법 도전(unet)
+
+
+### 6) 자동 마스크 생성
 * 프로그램 : python
 * 소스코드 : lenna.ipynb
 * 학습 데이터 : JPEG 사람 데이터 56599장
@@ -82,8 +103,11 @@
 
 * 개선할 점
     * 히스토그램 평활화, 샤프닝 등 객체를 강조하는 이미지 처리기법 적용
-    * 전신 데이터가 많은 훈련셋에 비해 레나 이미지의 경우 상반신만 있는 초상화이므로, ImageGenerator 확대 관련 파라미터 조정 후 성능 재 
+    * 전신 데이터가 많은 훈련셋에 비해 레나 이미지의 경우 상반신만 있는 초상화이므로, ImageGenerator 확대 관련 파라미터 조정 후 성능 재측정
 
+
+따라서 직접 딴 마스크로 진행
+</br>
 ## 4. 결과 이미지
 #### 컬러이미지
 * lena 이미지
