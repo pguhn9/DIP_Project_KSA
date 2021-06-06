@@ -10,9 +10,26 @@
 
 ## 2. 구조 설계
 ### 1) 프로젝트 구조 개요
+<<<<<<< HEAD
+=======
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Project_structure_info.PNG" width="550px" height="700px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+>>>>>>> 8455ed25a8e8698a43e91e9de9db4b205c068322
+
 <img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Project_structure_info.PNG" width="550px" height="700px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
 
-### 2) 주요 클래스 생성
+### 2) 다이어그램
+#### (1) Sequence Diagram
+
+<img src="https://user-images.githubusercontent.com/72690336/120916312-e4986300-c6e3-11eb-9ddf-d606a59ff76d.png" width="650px" height="500px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
+### (2) Class Diagram
+
+<img src="https://user-images.githubusercontent.com/72690336/120916224-545a1e00-c6e3-11eb-9d5e-1e18adf9cd1b.png" width="550px" height="300px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
+
+
+
+### 3) 주요 클래스 생성
 * ImageCompositionDoc 클래스
   - 파일을 읽어들이기 위한 CFile 객체, 비트맵 해더를 저장하기 위한 BITMAPFILEHEADER, BITMAPINFOHEADER 객체, 8비트일 경우 색상 파레트를 저장하기 위한 RGBQUAD 객체를 필드로 갖는다.
   - bmp 이미지 비트 수 확인, 컬러 흑백 확인하는 기능을 포함한다.
@@ -29,7 +46,7 @@
   - 이미지 합성을 실행하는 클래스.
   - 이미지 합성을 위한 이미지 처리 함수들을 포함하고 있다.
 
-### 3) 주요 기능(함수)
+### 4) 주요 기능(함수)
 * ImageCompositionDoc 클래스 안의 함수
   - OnOpenDocument 함수 : 입력 이미지를 열어서 bmp헤더 정보와 이미지 값을 변수에 저장하는 함수.
   - OnSaveDocument 함수 : 출력 이미지를 대화상자로 지정한 위치에 bmp 형식으로 저장하는 함수.
@@ -44,6 +61,28 @@
   - ImgFrameSum 함수 : 두 이미지를 SUM연산한 결과를 반환하는 함수.
   - ImgBinary 함수 : 한 이미지를 이진화 하는 함수.
 
+### 5) 자동 마스크 생성
+* 프로그램 : python
+* 소스코드 : lenna.ipynb
+* 학습 데이터 : JPEG 사람 데이터 56599장
+* 라벨 : Annotations 마스킹 데이터 
+* 사용 알고리즘 : U-NET
+
+<img src="https://user-images.githubusercontent.com/72690336/120916413-7dc77980-c6e4-11eb-9b34-e4c3472e866c.png" width="550px" height="500px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
+* 결과
+
+훈련셋
+
+<img src="https://user-images.githubusercontent.com/72690336/120917129-5b375f80-c6e8-11eb-8c3a-bbab7c6aecfb.png" width ="450px" height="400px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
+레나이미지 마스킹 결과
+
+<img src="https://user-images.githubusercontent.com/72690336/120917178-9d60a100-c6e8-11eb-832c-6bcf0f05c1d3.png" width ="350px" height="250px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+
+* 개선할 점
+    * 히스토그램 평활화, 샤프닝 등 객체를 강조하는 이미지 처리기법 적용
+    * 전신 데이터가 많은 훈련셋에 비해 레나 이미지의 경우 상반신만 있는 초상화이므로, ImageGenerator 확대 관련 파라미터 조정 후 성능 재 
 
 ## 4. 결과 이미지
 #### 컬러이미지
