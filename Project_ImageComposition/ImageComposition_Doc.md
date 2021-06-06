@@ -10,7 +10,7 @@
 
 ## 2. 구조 설계
 ### 1) 프로젝트 구조 개요
-<img 프로젝트 구조 개요>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Project_structure_info.PNG" width="550px" height="700px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
 
 ### 2) 주요 클래스 생성
 * ImageCompositionDoc 클래스
@@ -48,20 +48,25 @@
 ## 4. 결과 이미지
 #### 컬러이미지
 * lena 이미지
-<img lena color>
-
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lena512color.bmp" width="256px" height="256px" title="lena512color" alt="lena512color"></img><br/>
 * 배경 이미지
-<img background>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/background512color.bmp" width="256px" height="256px" title="background512color" alt="background512color"></img><br/>
 
 * 합성 이미지
-<img lena background>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lenacolorbackground1.bmp" width="256px" height="256px" title="lena512color_background" alt="lena512color_background"></img><br/>
 
 #### 흑백이미지
 * lena 이미지
-<img lena gray>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lena2.bmp" width="256px" height="256px" title="lena2" alt="lena2"></img><br/>
 
 * 배경 이미지
-<img nightview>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/nightview2.bmp" width="256px" height="256px" title="nightview2" alt="nightview2"></img><br/>
 
 * 합성 이미지
-<img lena nightview>
+<br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/lenanightview1.bmp" width="256px" height="256px" title="lenanightview1" alt="lenanightview1"></img><br/>
