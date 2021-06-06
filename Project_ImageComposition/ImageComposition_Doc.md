@@ -1,0 +1,67 @@
+## 이미지 합성 팀프로젝트
+##### 날짜: 2021.06.05
+-------------------------------
+
+
+## 1. 프로젝트 목적
+* bmp 이미지 파일 입력 , 출력 받기
+* 인물, 배경 이미지 합성
+* MFC 프로젝트 이용한 윈도우 프로그램으로 구현
+
+## 2. 구조 설계
+### 1) 프로젝트 구조 개요
+<img 프로젝트 구조 개요>
+
+### 2) 주요 클래스 생성
+* ImageCompositionDoc 클래스
+  - 파일을 읽어들이기 위한 CFile 객체, 비트맵 해더를 저장하기 위한 BITMAPFILEHEADER, BITMAPINFOHEADER 객체, 8비트일 경우 색상 파레트를 저장하기 위한 RGBQUAD 객체를 필드로 갖는다.
+  - bmp 이미지 비트 수 확인, 컬러 흑백 확인하는 기능을 포함한다.
+  - 이미지 가로 세로 길이와 입력 이미지, 출력 이미지, 마스크 이미지를 저장하기 위한 필드를 갖는다.
+  - 출력 이미지를 저장하는 함수를 포함한다.
+  - 입력 이미지, 출력 이미지, 마스크 이미지를 합성하는 기능을 포함한다.
+
+* ImageCompositionView 클래스
+  - 입력된 이미지를 출력하기 위한 기능 포함.
+  - 영상합성 메뉴 버튼 커맨드(ID_IMG_COMP)와 기능을 연결하는 함수 포함.
+
+
+* CImgComposition 클래스
+  - 이미지 합성을 실행하는 클래스.
+  - 이미지 합성을 위한 이미지 처리 함수들을 포함하고 있다.
+
+### 3) 주요 기능(함수)
+* ImageCompositionDoc 클래스 안의 함수
+  - OnOpenDocument 함수 : 입력 이미지를 열어서 bmp헤더 정보와 이미지 값을 변수에 저장하는 함수.
+  - OnSaveDocument 함수 : 출력 이미지를 대화상자로 지정한 위치에 bmp 형식으로 저장하는 함수.
+  - OnImgComp 함수 : 배경 이미지와 마스크 이미지를 입력 받아 CImgComposition 객체를 통해 합성이미지를 출력이미지에 저장하는 함수.
+* ImageCompositionView 클래스 안의 함수
+  - OnDraw 함수 : 현재 입력 이미지와 출력 이미지를 프로그램상으로 보여주는 함수.
+  - OnImgComp 함수 : 영상합성 메뉴 버튼 커맨드(ID_IMG_COMP)와 기능을 연결하는 함수
+* CImgComposition 클래스 안의 함수
+  - ImageComposition 함수 : 입력, 배경, 마스크, 출력 이미지를 받아서 이미지 프로세싱 함수들을 이용해 합성 이미지를 반환하는 함수.
+  - ImgFrameAnd 함수 : 두 이미지를 AND연산한 결과를 반환하는 함수.
+  - ImgNot 함수 : 한 이미지를 반전하는 함수.
+  - ImgFrameSum 함수 : 두 이미지를 SUM연산한 결과를 반환하는 함수.
+  - ImgBinary 함수 : 한 이미지를 이진화 하는 함수.
+
+
+## 4. 결과 이미지
+#### 컬러이미지
+* lena 이미지
+<img lena color>
+
+* 배경 이미지
+<img background>
+
+* 합성 이미지
+<img lena background>
+
+#### 흑백이미지
+* lena 이미지
+<img lena gray>
+
+* 배경 이미지
+<img nightview>
+
+* 합성 이미지
+<img lena nightview>

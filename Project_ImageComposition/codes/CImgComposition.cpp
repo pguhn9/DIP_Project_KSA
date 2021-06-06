@@ -1,23 +1,23 @@
 #include "pch.h"
 #include "CImgComposition.h"
 
-unsigned char* CImgComposition::ImageComposition(int imgsize, unsigned char* input, unsigned char* backgroundimg, unsigned char* output, int bitcount)
+
+unsigned char* CImgComposition::ImageComposition(int imgsize, unsigned char* input, unsigned char* backgroundimg, unsigned char* output, unsigned char* mask, int bitcount)
 {
 	imgtemp = new unsigned char[imgsize];
+	imgtemp2 = new unsigned char[imgsize];
 	maskimg = new unsigned char[imgsize];
 	maskimgNot = new unsigned char[imgsize];
 	lenaobject = new unsigned char[imgsize];
 	lenabackground = new unsigned char[imgsize];
-	output = ImgFrameAnd(imgsize, input, backgroundimg, bitcount);
-	//output = ImgFrameSum(imgsize, input, backgroundimg, output);
-	//output = ImgNot(imgsize, input, output);
-	//output = ImgBinary(imgsize, input, output, bitcount);
 
-	//maskimg = ImgBinary(imgsize, input, imgtemp); //마스킹 대체.
-	//maskimgNot = ImgNot(imgsize, maskimg, imgtemp);
-	//lenaobject = ImgFrameAnd(imgsize, input, maskimg);
-	//lenabackground = ImgFrameAnd(imgsize, backgroundimg, maskimgNot);
-	//output = ImgFrameAnd(imgsize, lenaobject, lenabackground);
+
+	maskimg = mask;
+	maskimgNot = ImgNot(imgsize, maskimg, imgtemp, bitcount);
+	lenaobject = ImgFrameAnd(imgsize, input, maskimg, imgtemp, bitcount);
+	lenabackground = ImgFrameAnd(imgsize, backgroundimg, maskimgNot, imgtemp2, bitcount);
+	output = ImgFrameSum(imgsize, lenaobject, lenabackground, output, bitcount);
+	output = lenabackground;
 
 	return output;
 }
@@ -28,14 +28,15 @@ unsigned char* CImgComposition::MakeMask(int imgsize, unsigned char* input, int 
 	return nullptr;
 }
 
-unsigned char* CImgComposition::ImgFrameAnd(int imgsize, unsigned char* first, unsigned char* second, int bitcount)
+unsigned char* CImgComposition::ImgFrameAnd(int imgsize, unsigned char* first, unsigned char* second, unsigned char* imgtemp, int bitcount)
 {
-
+	unsigned char* imgtempk = nullptr;
+	imgtempk = new unsigned char[imgsize*3];
 	for (int i = 0; i < imgsize*3; i++) {
-		imgtemp[i]
+		imgtempk[i]
 			= (unsigned char)(first[i] & second[i]);
 	}
-	return imgtemp;
+	return imgtempk;
 }
 
 unsigned char* CImgComposition::ImgNot(int imgsize, unsigned char* input, unsigned char* output, int bitcount)

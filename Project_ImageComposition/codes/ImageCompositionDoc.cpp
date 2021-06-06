@@ -209,19 +209,24 @@ BOOL CImageCompositionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 	// TODO: 여기에 특수화된 코드를 추가 및/또는 기본 클래스를 호출합니다.
 	//3장
 	CFile hFile;
+	CFileDialog SaveDlg(FALSE, _T("bmp"), NULL, OFN_HIDEREADONLY);
 
-	if (!hFile.Open(lpszPathName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
-		return FALSE;
+	
 
-	//정보저장
-	hFile.Write(&dibHf, sizeof(BITMAPFILEHEADER));
-	hFile.Write(&dibHi, sizeof(BITMAPINFOHEADER));
 
-	if (dibHi.biBitCount == 8)
-		hFile.Write(palRGB, sizeof(RGBQUAD) * 256);
+	if (SaveDlg.DoModal() == IDOK) {
+		if (!hFile.Open(SaveDlg.GetPathName(), CFile::modeCreate | CFile::modeWrite | CFile::typeBinary))
+			return FALSE;
+		//정보저장
+		hFile.Write(&dibHf, sizeof(BITMAPFILEHEADER));
+		hFile.Write(&dibHi, sizeof(BITMAPINFOHEADER));
 
-	hFile.Write(m_OutputImage, dibHi.biSizeImage);
-	hFile.Close();
+		if (dibHi.biBitCount == 8)
+			hFile.Write(palRGB, sizeof(RGBQUAD) * 256);
+
+		hFile.Write(m_OutputImage, dibHi.biSizeImage);
+		hFile.Close();
+	}
 
 	return TRUE;
 }
@@ -233,11 +238,17 @@ void CImageCompositionDoc::OnImgComp()
 {
 	// 프레임AND 참고
 	CFile tFile;
+	CFile tFile2;
 	CFileDialog OpenDlg(TRUE);
+	CFileDialog OpenDlg2(TRUE);
 	CImgComposition ic;
-	int bitcount=0;
+	int bitcount = 0;
+	unsigned char* background = nullptr;
+	unsigned char* mask = nullptr;
 
+	AfxMessageBox(L"배경이미지 선택 해주세요");
 	if (OpenDlg.DoModal() == IDOK) {
+		
 		tFile.Open(OpenDlg.GetPathName(), CFile::modeRead | CFile::typeBinary);    //파일 열기
 		tFile.Read(&dibHf, sizeof(BITMAPFILEHEADER));
 
@@ -271,67 +282,64 @@ void CImageCompositionDoc::OnImgComp()
 			ImgSize = tFile.GetLength() - sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
 		}
 
-		//int i;
-		unsigned char* background = new unsigned char[ImgSize];
-		tFile.Read(background, ImgSize);
-		tFile.Close();
+		AfxMessageBox(L"마스크 이미지를 입력해주세요");
+		if (OpenDlg2.DoModal() == IDOK) {
+			tFile2.Open(OpenDlg2.GetPathName(), CFile::modeRead | CFile::typeBinary);    //파일 열기
+			tFile2.Read(&dibHf2, sizeof(BITMAPFILEHEADER));
 
-		bitcount = dibHi.biBitCount;
-		//AfxMessageBox(bitcount);
-		m_Out_height = dibHi.biHeight;
-		m_Out_width = dibHi.biWidth;
-		m_Out_size = m_Out_height * m_Out_width;
+			//이 파일이 BMP파일인지 검사 
+			if (dibHf2.bfType != 0x4D42)
+			{
+				AfxMessageBox(L"Not BMP file!!");                                        //프로젝트 생성시 유니코드를 사용하게 할 경우                                                                     //L을 붙여준다
+			}
 
-		m_OutputImage = new unsigned char[m_Out_size];
-		m_OutputImage = background;
+			tFile2.Read(&dibHi2, sizeof(BITMAPINFOHEADER));                             //영상정보의 header를 읽기
 
-		m_OutputImage = ic.ImageComposition(m_Out_size, m_InImg, background, m_OutputImage, bitcount);
-	}
+			if (dibHi2.biBitCount != 8 && dibHi2.biBitCount != 24)                                //8,24비트가 아닐경우
+			{
+				AfxMessageBox(L"Gray/True Color Possible!!");
+			}
 
-	
-
-	/*
-	if (OpenDlg.DoModal() == IDOK) {
-		tFile.Open(OpenDlg.GetPathName(), CFile::modeRead); //파일 열기창
-		if (tFile.GetLength() == (unsigned)m_width * m_height) {
-			background = new unsigned char[m_size];
-			tFile.Read(background, m_size); //파일에서 데이터 가지고 오기.
-			tFile.Close();
+			if (dibHi2.biBitCount == 8)
+				//8비트의 경우 팔레트를 생성해 주어야 한다. 총 256가지 색이므로 그 길이만큼 읽어들인다
+				tFile.Read(palRGB, sizeof(RGBQUAD) * 256);
 
 
-			m_OutputImage = ic.ImageComposition(m_size, m_InputImage, background, m_OutputImage);
+			//메모리 할당
+			int ImgSize;
 
-			//for (i = 0; i < m_size; i++) {
-			//	m_OutputImage[i]
-			//		= (unsigned char)(m_InputImage[i] & background[i]);
-			//}
-		}
-		else {
-			AfxMessageBox(L"Image size not matched");
-			return;
-		}
-	}
-	*/
-}
+			if (dibHi2.biBitCount == 8)
+			{
+				ImgSize = tFile2.GetLength() - sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER) - 256 * sizeof(RGBQUAD);    //이미지의 크기는 파일 총 길이에서, 두 헤드와 팔레트의 사이즈를 
+			}
+			else if (dibHi2.biBitCount == 24) //컬러영상
+			{
+				ImgSize = tFile2.GetLength() - sizeof(BITMAPFILEHEADER) - sizeof(BITMAPINFOHEADER);
+			}
+			mask = new unsigned char[ImgSize];
+			tFile2.Read(mask, ImgSize);
+			tFile2.Close();
 
+			{
 
-void CImageCompositionDoc::OnDownsample()
-{
-	// TODO: 여기에 구현 코드 추가.
-	int i, j, k;
+				//int i;
+				background = new unsigned char[ImgSize];
+				tFile.Read(background, ImgSize);
+				tFile.Close();
 
-	m_Out_height = m_height / 2;
-	m_Out_width = m_width / 2;
-	m_Out_size = m_Out_height * m_Out_width;
+				bitcount = dibHi.biBitCount;
+				//AfxMessageBox(bitcount);
+				m_Out_height = dibHi.biHeight;
+				m_Out_width = dibHi.biWidth;
+				m_Out_size = m_Out_height * m_Out_width;
 
-	m_OutputImage = new unsigned char[m_Out_size*3];
+				m_OutputImage = new unsigned char[m_Out_size];
+				m_OutputImage = background;
+				m_MaskImage = new unsigned char[m_Out_size];
+				m_MaskImage = mask;
 
-	for (i = 0; i < m_Out_height; i++) {
-		for (j = 0; j < m_Out_width; j++) {
-			for (k = 0; k < 3; k++) {
-				m_OutputImage[i*m_Out_width + (j*3)+k] = m_InImg[(i * 2 * m_width) + 2 * (j*3)+k];
+				m_OutputImage = ic.ImageComposition(m_Out_size, m_InImg, background, m_OutputImage, m_MaskImage, bitcount);
 			}
 		}
 	}
-
 }

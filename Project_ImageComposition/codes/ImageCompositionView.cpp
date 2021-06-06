@@ -30,7 +30,6 @@ BEGIN_MESSAGE_MAP(CImageCompositionView, CView)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
 	ON_COMMAND(ID_IMG_COMP, &CImageCompositionView::OnImgComp)
-	ON_COMMAND(ID_DOWNSAMPLE, &CImageCompositionView::OnDownsample)
 END_MESSAGE_MAP()
 
 // CImageCompositionView 생성/소멸
@@ -110,15 +109,9 @@ void CImageCompositionView::OnDraw(CDC* pDC)
 
 	//아웃풋 출력
 	if (pDoc->dibHi.biBitCount == 24) {
-		//height = pDoc->dibHi.biHeight;
-		height = pDoc->m_Out_height;
-		pDoc->dibHi.biHeight = pDoc->m_Out_height;
-		//width = pDoc->dibHi.biWidth;
-		width = pDoc->m_Out_width;
-		pDoc->dibHi.biWidth = pDoc->m_Out_width;
-
-		//rwsize = WIDTHBYTES(pDoc->dibHi.biBitCount*pDoc->dibHi.biWidth);
-		rwsize = WIDTHBYTES(pDoc->dibHi.biBitCount*pDoc->m_Out_width);
+		height = pDoc->dibHi.biHeight;
+		width = pDoc->dibHi.biWidth;
+		rwsize = WIDTHBYTES(pDoc->dibHi.biBitCount*pDoc->dibHi.biWidth);
 		BmInfo->bmiHeader = pDoc->dibHi;
 		SetDIBitsToDevice(pDC->GetSafeHdc(), 512, 0, width, height, 0, 0, 0, height, pDoc->m_OutputImage, BmInfo, DIB_RGB_COLORS);
 	}
@@ -215,16 +208,5 @@ void CImageCompositionView::OnImgComp()
 	ASSERT_VALID(pDoc);
 
 	pDoc->OnImgComp();
-	Invalidate(TRUE);
-}
-
-
-void CImageCompositionView::OnDownsample()
-{
-	// TODO: 여기에 명령 처리기 코드를 추가합니다.
-	CImageCompositionDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	pDoc->OnDownsample();
 	Invalidate(TRUE);
 }

@@ -46,7 +46,6 @@ protected:
 public:
 	afx_msg void OnImgComp();
 	BITMAPINFO* BmInfo;
-	afx_msg void OnDownsample();
 };
 
 #ifndef _DEBUG  // ImageCompositionView.cpp의 디버그 버전

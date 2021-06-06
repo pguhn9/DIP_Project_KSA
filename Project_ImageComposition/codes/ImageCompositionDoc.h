@@ -60,6 +60,8 @@ public:
 
 	BITMAPFILEHEADER dibHf;
 	BITMAPINFOHEADER dibHi;
+	BITMAPFILEHEADER dibHf2;
+	BITMAPINFOHEADER dibHi2;
 	RGBQUAD palRGB[256];
 	unsigned char* m_InImg;
 	unsigned char* m_OutImg;
@@ -67,5 +69,5 @@ public:
 
 
 	void OnImgComp();
-	void OnDownsample();
+	unsigned char*m_MaskImage;
 };
