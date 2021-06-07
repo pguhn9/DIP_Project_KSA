@@ -18,11 +18,11 @@
 ### 2) 다이어그램
 #### (1) Sequence Diagram
 
-<img src="https://user-images.githubusercontent.com/72690336/120916312-e4986300-c6e3-11eb-9ddf-d606a59ff76d.png" width="650px" height="500px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/Sequence%20Diagram.PNG" width="650px" height="500px" title="Sequence%20Diagram" alt="Sequence%20Diagram"></img><br/>
 
 ### (2) Class Diagram
 
-<img src="https://user-images.githubusercontent.com/72690336/120916224-545a1e00-c6e3-11eb-9d5e-1e18adf9cd1b.png" width="550px" height="300px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/class_diagram.PNG" width="550px" height="300px" title="class_diagram" alt="class_diagram"></img><br/>
 
 
 
@@ -92,17 +92,17 @@
 * 라벨 : Annotations 마스킹 데이터 
 * 사용 알고리즘 : U-NET
 
-<img src="https://user-images.githubusercontent.com/72690336/120916413-7dc77980-c6e4-11eb-9b34-e4c3472e866c.png" width="550px" height="500px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/U-NET.png" width="550px" height="500px" title="U-NET" alt="U-NET"></img><br/>
 
 * 결과
 
 훈련셋
 
-<img src="https://user-images.githubusercontent.com/72690336/120917129-5b375f80-c6e8-11eb-8c3a-bbab7c6aecfb.png" width ="450px" height="400px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/unet_train_set.png" width ="450px" height="400px" title="unet_train_set" alt="unet_train_set"></img><br/>
 
 레나이미지 마스킹 결과
 
-<img src="https://user-images.githubusercontent.com/72690336/120917178-9d60a100-c6e8-11eb-832c-6bcf0f05c1d3.png" width ="350px" height="250px" title="Project_structure_info" alt="Project_structure_info"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/unet_lena_masking.PNG" width ="350px" height="250px" title="unet_lena_masking" alt="unet_lena_masking"></img><br/>
 
 * 개선할 점
     * 히스토그램 평활화, 샤프닝 등 객체를 강조하는 이미지 처리기법 적용
