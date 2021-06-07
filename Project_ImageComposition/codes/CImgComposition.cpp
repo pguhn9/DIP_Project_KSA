@@ -17,7 +17,6 @@ unsigned char* CImgComposition::ImageComposition(int imgsize, unsigned char* inp
 	lenaobject = ImgFrameAnd(imgsize, input, maskimg, imgtemp, bitcount);
 	lenabackground = ImgFrameAnd(imgsize, backgroundimg, maskimgNot, imgtemp2, bitcount);
 	output = ImgFrameSum(imgsize, lenaobject, lenabackground, output, bitcount);
-	output = lenabackground;
 
 	return output;
 }
@@ -57,10 +56,10 @@ unsigned char* CImgComposition::ImgFrameSum(int imgsize, unsigned char* lenaobje
 	return output;
 }
 
-unsigned char* CImgComposition::ImgBinary(int imgsize, unsigned char* input, unsigned char* output, int bitcount) // Å×½ºÆ® ÀÌ¹ÌÁö¿ë °£´Ü ¸¶½ºÅ© ¸¸µé±â.
+unsigned char* CImgComposition::ImgBinary(int imgsize, unsigned char* input, unsigned char* output, int bitcount) // í…ŒìŠ¤íŠ¸ ì´ë¯¸ì§€ìš© ê°„ë‹¨ ë§ˆìŠ¤í¬ ë§Œë“¤ê¸°.
 {
 	for (int i = 0; i < imgsize*3; i++) {
-		if (input[i] >= 100)//ÀÓÀÇ °ªÀÓ.
+		if (input[i] >= 100)//ì„ì˜ ê°’ì„.
 			output[i] = 255;
 		else
 			output[i] = 0;
