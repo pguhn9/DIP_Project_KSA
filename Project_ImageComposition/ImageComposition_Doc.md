@@ -92,7 +92,7 @@
 * 라벨 : Annotations 마스킹 데이터 
 * 사용 알고리즘 : U-NET
 
-<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/U-NET.png" width="550px" height="500px" title="U-NET" alt="U-NET"></img><br/>
+<img src="https://github.com/pguhn9/DIP_Project_KSA/blob/main/Project_ImageComposition/project_image/unet.png" width="550px" height="500px" title="U-NET" alt="U-NET"></img><br/>
 
 * 결과
 
